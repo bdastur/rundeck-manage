@@ -21,7 +21,8 @@ ansible_path="${rootdir}/ansible_stable19"
 ansible_submodules_repo="${ansible_path}/lib/ansible/modules/core/.git"
 
 rundeckrun_path="${rootdir}/rundeckrun"
-pythonpath="${rundeckrun_path}"
+rundeckmanage_path="${curdir}"
+pythonpath="${rundeckrun_path}:${rundeckmanage_path}"
 
 echo $curdir
 echo $rootdir

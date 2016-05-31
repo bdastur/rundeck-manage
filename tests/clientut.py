@@ -4,6 +4,7 @@
 import unittest
 import os
 import api.rdeck_client as rdeckclient
+import rundeck.exceptions
 
 
 class ClientUt(unittest.TestCase):
@@ -39,4 +40,54 @@ class ClientUt(unittest.TestCase):
         self.failUnless(self.apikey is not None)
 
         self.rdclient.backup_rundeck("/tmp/testdir")
+
+    def test_populate_rundeck(self):
+        print "Test Rundeck Populate"
+        self.failUnless(self.rdeck_url is not None)
+        self.failUnless(self.apikey is not None)
+        self.failUnless(self.rdclient.rdclient is not None)
+
+        self.rdclient.populate_rundeck("/tmp/testdir")
+
+    def test_rundeckrun_project_create(self):
+        print "Test basic project create API"
+        self.failUnless(self.rdeck_url is not None)
+        self.failUnless(self.apikey is not None)
+        self.failUnless(self.rdclient.rdclient is not None)
+
+        projectconfig = {}
+        projectconfig['description'] = "Test project (API creation)"
+
+        try:
+            retval = self.rdclient.rdclient.create_project('testproject202',
+                                                           config=projectconfig)
+        except rundeck.exceptions.HTTPError as httperror:
+            print "Error: %s" % httperror
+            return
+
+        print "Retval: ", retval
+
+    def test_rundeckrun_project_get(self):
+        print "Test basic get project API"
+        self.failUnless(self.rdeck_url is not None)
+        self.failUnless(self.apikey is not None)
+        self.failUnless(self.rdclient.rdclient is not None)
+
+        # Valid project.
+        #retval = self.rdclient.rdclient.get_project('testproj3')
+        #print "retval: ", retval
+
+        kwargs = {}
+
+        kwargs['headers'] = {'Accept': 'application/json'}
+        # Invalid project.
+        self.rdclient.rdclient.get_project('dummy', **kwargs)
+
+
+
+
+
+
+
+
 

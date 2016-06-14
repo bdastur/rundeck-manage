@@ -20,6 +20,12 @@ function show_help()
     echo ""
     echo "-h              : Show this help"
     echo ""
+    echo "Example Usage: "
+    echo "export _RDECK_APIKEY=AKF449EKFJELEJ"
+    echo "export _RDECK_USER=testuser"
+    echo "export _RDECK_SSHKEY=/tmp/tf_accesskey"
+    echo " ./rundeck-manage.sh backup -u test.rundeck.abc.com -d /tmp/testdir"
+    echo ""
 
     exit 1
 }
@@ -41,9 +47,13 @@ import api.rdeck_client as rdeckclient
 rdclient = rdeckclient.RundeckClient("${rundeck_url}",
                                      "${rundeck_apikey}")
 rdclient.backup_rundeck("${localdir}")
-
-
 END
+    # Backup Data directory.
+    scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/data $localdir
+
+    # Backup logs.
+    scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/logs $localdir
+
 }
 
 readonly COMMANDLINE="$*"
@@ -90,6 +100,16 @@ if [[ -z ${_RDECK_APIKEY} ]]; then
     exit 1
 fi
 
+if [[ -z ${_RDECK_SSHKEY} ]]; then
+    echo "Set env variable _RDECK_SSHKEY to the ssh private key to access Rundeck server"
+    exit 1
+fi
+
+if [[ -z ${_RDECK_USER} ]]; then
+    echo "Set env var _RDECK_USER to the ssh user to access Rundeck Server"
+    exit 1
+fi
+
 if [[ $operation_type = "backup" ]]; then
     backup_rundeck $rundeck_url $directory ${_RDECK_APIKEY}
 fi
@@ -99,4 +119,7 @@ fi
 
 
 
+ echo "export _RDECK_APIKEY=AKF449EKFJELEJ"
+     echo "export _RDECK_USER=testuser"
+         echo "export _RDECK_SSHKEY=/tmp/tf_accesskey"
 

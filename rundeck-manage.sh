@@ -41,12 +41,18 @@ function backup_rundeck()
         exit 1
     fi
 
+    jobsdir="${localdir}/jobs"
+    if [[ ! -d $jobsdir ]]; then
+        echo "Jobs Directory does not exist. Create it"
+        mkdir -p $jobsdir
+    fi
+
     python - << END
 import api.rdeck_client as rdeckclient
 
 rdclient = rdeckclient.RundeckClient("${rundeck_url}",
                                      "${rundeck_apikey}")
-rdclient.backup_rundeck("${localdir}")
+rdclient.backup_rundeck("${jobsdir}")
 END
     # Backup Data directory.
     scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/data $localdir

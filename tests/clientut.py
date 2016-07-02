@@ -5,6 +5,7 @@ import unittest
 import os
 import api.rdeck_client as rdeckclient
 import rundeck.exceptions
+from rundeck.client import Rundeck
 
 
 class ClientUt(unittest.TestCase):
@@ -82,6 +83,26 @@ class ClientUt(unittest.TestCase):
         kwargs['headers'] = {'Accept': 'application/json'}
         # Invalid project.
         self.rdclient.rdclient.get_project('dummy', **kwargs)
+
+    def test_list_executions(self):
+        print "Test listing executions from Rundeck API"
+        rdclient = Rundeck(self.rdeck_url,
+                           api_token=self.apikey,
+                           headers={'Accept': 'application/json'})
+        projects = rdclient.list_projects()
+        for project in projects:
+            print "project: ", project
+
+        jobs = rdclient.list_jobs(project="testproj3")
+        for job in jobs:
+            job_id = job['id']
+            print "JOb id: ", job_id
+            executions = rdclient.list_job_executions(job_id,
+                                                      max=20,
+                                                      offset=0)
+            for execution in executions:
+                print "Execution: ", execution
+
 
 
 

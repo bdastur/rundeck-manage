@@ -103,10 +103,22 @@ class ClientUt(unittest.TestCase):
             for execution in executions:
                 print "Execution: ", execution
 
+    def test_delete_job_executions(self):
+        print "Test API to delete job executions"
+        self.failUnless(self.rdeck_url is not None)
+        self.failUnless(self.apikey is not None)
+        self.failUnless(self.rdclient.rdclient is not None)
 
+        self.rdclient.delete_job_executions()
 
+    def test_delete_job_execution(self):
+        print "API TO delete a exection"
+        self.failUnless(self.rdeck_url is not None)
+        self.failUnless(self.apikey is not None)
+        self.failUnless(self.rdclient.rdclient is not None)
 
-
+        executions = ['47625', '47621', '47620']
+        self.rdclient.delete_job_execution(executions)
 
 
 

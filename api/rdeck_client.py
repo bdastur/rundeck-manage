@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import requests
 from rundeck.client import Rundeck
 
 
@@ -124,6 +125,76 @@ class RundeckClient(object):
                                                        file_format=fmt)
                 print "retval: ", retval
 
+    def __prepare_rundeck_request(self,
+                                  method,
+                                  url,
+                                  data=None):
+        '''
+        Internal API. To create the resource url
+        '''
+
+        url = "https://" + self.rundeck_url + url
+        headers = {'Accept': 'application/json',
+                   'X-RunDeck-Auth-Token': self.apitoken
+                   }
+
+        request_obj = requests.Request(method,
+                                       url,
+                                       headers=headers,
+                                       data=data)
+
+        prepped_request = request_obj.prepare()
+        return prepped_request
+
+
+    def delete_job_execution(self, execution_ids):
+        '''
+        Delete Jobs in Bulk.
+        '''
+        method = "POST"
+        url = "/api/12/executions/delete"
+        data = {"ids": execution_ids}
+
+        print "Deleting: %s Executions" % str(len(execution_ids))
+
+        request_obj = self.__prepare_rundeck_request(method, url, data=data)
+        s = requests.Session()
+
+        resp = s.send(request_obj, verify=False)
+        print resp.text, resp
+
+    def delete_job_executions(self,
+                              projects=None,
+                              maxjobs=50,
+                              offset=0):
+        '''
+        Delete Executions past a certain date.
+        '''
+        currprojects = self.rdclient.list_projects()
+        for project in currprojects:
+            if projects is not None and project['name'] not in projects:
+                print "Skipping Project: ", project['name']
+                continue
+
+            jobs = self.rdclient.list_jobs(project=project['name'])
+            for job in jobs:
+
+                job_executions = self.rdclient.list_job_executions(
+                    job['id'], max=maxjobs, offset=offset)
+
+                if len(job_executions) < maxjobs:
+                    print "Not Enough Executions for [%s: %s]. Skip it" % \
+                        (project['name'], job['name'])
+                    continue
+
+                execution_ids = []
+                for execution in job_executions:
+                    #print "Execution: %s [%s: %s]" % \
+                    #    (execution['id'], execution['project'],
+                    #     execution['job']['name'])
+                    execution_ids.append(execution['id'])
+
+                self.delete_job_execution(execution_ids)
 
 
 

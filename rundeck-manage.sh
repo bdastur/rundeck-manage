@@ -8,6 +8,7 @@
 directory=
 rundeck_url=
 rundeck_apikey=
+skip_logs=false
 
 function show_help()
 {
@@ -17,6 +18,8 @@ function show_help()
     echo "-d directory    : Specify the destination directory where the rundeck job data will be saved"
     echo ""
     echo "-u rundeck url  : Rundeck URL"
+    echo ""
+    echo "-s              : Skip logs collection"
     echo ""
     echo "-h              : Show this help"
     echo ""
@@ -57,8 +60,13 @@ END
     # Backup Data directory.
     scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/data $localdir
 
-    # Backup logs.
-    scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/logs $localdir
+    echo "skip logs: $skip_logs"
+    if [[ $skip_logs = false ]]; then
+        # Backup logs.
+        scp -r -i ${_RDECK_SSHKEY} ${_RDECK_USER}@${rundeck_url}:/var/lib/rundeck/logs $localdir
+    else
+        echo "Skip Logs backup"
+    fi
 
 }
 
@@ -77,12 +85,15 @@ if [[ ! $operation_type = "backup" ]]; then
 fi
 shift
 
-CMD_OPTIONS="d:u:h"
+CMD_OPTIONS="d:su:h"
 
 while getopts ${CMD_OPTIONS} option; do
     case $option in
         d)
             directory=$OPTARG
+            ;;
+        s)
+            skip_logs=true
             ;;
         u)
             rundeck_url=$OPTARG

@@ -146,7 +146,6 @@ class RundeckClient(object):
         prepped_request = request_obj.prepare()
         return prepped_request
 
-
     def delete_job_execution(self, execution_ids):
         '''
         Delete Jobs in Bulk.
@@ -165,8 +164,8 @@ class RundeckClient(object):
 
     def delete_job_executions(self,
                               projects=None,
-                              maxjobs=50,
-                              offset=0):
+                              maxjobs=75,
+                              offset=2000):
         '''
         Delete Executions past a certain date.
         '''
@@ -178,6 +177,8 @@ class RundeckClient(object):
 
             jobs = self.rdclient.list_jobs(project=project['name'])
             for job in jobs:
+                print "[%s: %s] max: %d, offset: %d " % \
+                    (project['name'], job['name'], maxjobs, offset)
 
                 job_executions = self.rdclient.list_job_executions(
                     job['id'], max=maxjobs, offset=offset)
@@ -192,7 +193,14 @@ class RundeckClient(object):
                     #print "Execution: %s [%s: %s]" % \
                     #    (execution['id'], execution['project'],
                     #     execution['job']['name'])
-                    execution_ids.append(execution['id'])
+
+                    # Only append executions that have succedded.
+                    # We do not want to cleanup failed jobs.
+                    if execution['status'] == "succeeded":
+                        execution_ids.append(execution['id'])
+                    else:
+                        print "%s status: %s, skip adding to delete list" % \
+                            (execution['id'], execution['status'])
 
                 self.delete_job_execution(execution_ids)
 

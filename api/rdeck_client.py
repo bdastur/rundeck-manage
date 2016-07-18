@@ -165,7 +165,7 @@ class RundeckClient(object):
     def delete_job_executions(self,
                               projects=None,
                               maxjobs=75,
-                              offset=2000):
+                              offset=1000):
         '''
         Delete Executions past a certain date.
         '''

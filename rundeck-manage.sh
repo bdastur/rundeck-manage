@@ -70,6 +70,27 @@ END
 
 }
 
+function populate_rundeck()
+{
+    rundeck_url=$1
+    localdir=$2
+    rundeck_apikey=$3
+
+    if [[ ! -e $localdir ]]; then
+        echo "Provide a path to local rundeck jobs repo"
+        exit 1
+    fi
+
+    python - << END
+import api.rdeck_client as rdeckclient
+
+rdclient = rdeckclient.RundeckClient("${rundeck_url}",
+                                     "${rundeck_apikey}")
+rdclient.populate_rundeck("${localdir}")                                    
+
+END
+}
+
 readonly COMMANDLINE="$*"
 
 if [[ $# -eq 0 ]]; then
@@ -79,7 +100,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 operation_type=$1
-if [[ ! $operation_type = "backup" ]]; then
+if [[ ! $operation_type = "backup" ]] && [[ ! $operation_type = "populate" ]]; then
     echo "Operation type invalid"
     exit 1
 fi
@@ -129,14 +150,12 @@ fi
 
 if [[ $operation_type = "backup" ]]; then
     backup_rundeck $rundeck_url $directory ${_RDECK_APIKEY}
+elif [[ $operation_type = "populate" ]]; then
+    populate_rundeck $rundeck_url $directory ${_RDECK_APIKEY}
 fi
 
 
-
-
-
-
- echo "export _RDECK_APIKEY=AKF449EKFJELEJ"
-     echo "export _RDECK_USER=testuser"
-         echo "export _RDECK_SSHKEY=/tmp/tf_accesskey"
+echo "_RDECK_APIKEY=${_RDECK_APIKEY}"
+echo "_RDECK_USER=${_RDECK_USER}"
+echo "_RDECK_SSHKEY=${_RDECK_SSHKEY}"
 

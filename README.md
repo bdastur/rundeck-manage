@@ -17,3 +17,16 @@ _RDECK_APIKEY=<api key>
 NOTE:
 When specifying the _RDECK_URL, do not include http:// or https://
 
+---
+
+Populate Rundeck:
+
+Example of populating rundeck with project and job definitions from local repository:
+
+./rundeck-manage.sh populate -u rundeckserver.abc.net -d /home/behzad_dastur/rdeckjun21prod/aws_rundeck/rundeck-backup/jobs/
+
+Backup Rundeck:
+
+Example of taking a backup of job definitiosn, projects, logs and DB from rundeck to local repository
+
+./rundeck-manage.sh backup -u rundeck.abc.net -d /home/behzad_dastur/rdeckjun21prod/aws_rundeck/rundeck-backup/ -s

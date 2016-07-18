@@ -89,7 +89,6 @@ class RundeckClient(object):
             if os.path.isdir(dirpath):
                 projects.append(dirobj)
 
-
         currprojects = self.rdclient.list_projects()
         currprojlist = []
         for proj in currprojects:
@@ -112,14 +111,13 @@ class RundeckClient(object):
 
         # Now import job files
         for project in projects:
-            dirpath = os.path.join(localdir, dirobj)
+            dirpath = os.path.join(localdir, project)
             if not os.path.isdir(dirpath):
                 print "Not a directory %s, skip it" % dirpath
                 continue
 
             for filename in os.listdir(dirpath):
                 jobfile = os.path.join(dirpath, filename)
-                print "JOb file: ", jobfile
                 retval = self.rdclient.import_job_file(jobfile,
                                                        project=project,
                                                        file_format=fmt)

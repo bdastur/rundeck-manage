@@ -148,22 +148,25 @@ class RundeckClient(object):
         '''
         Delete Jobs in Bulk.
         '''
+        MAX_DELETE_COUNT = 10
         method = "POST"
         url = "/api/12/executions/delete"
-        data = {"ids": execution_ids}
 
         print "Deleting: %s Executions" % str(len(execution_ids))
 
-        request_obj = self.__prepare_rundeck_request(method, url, data=data)
-        s = requests.Session()
+        for x in range(0, len(execution_ids), MAX_DELETE_COUNT):
+            data = {"ids": execution_ids[x:x + MAX_DELETE_COUNT]}
 
-        resp = s.send(request_obj, verify=False)
-        print resp.text, resp
+            request_obj = self.__prepare_rundeck_request(method, url, data=data)
+            s = requests.Session()
+
+            resp = s.send(request_obj, verify=False)
+            print resp.text, resp
 
     def delete_job_executions(self,
                               projects=None,
                               maxjobs=75,
-                              offset=1000):
+                              offset=3000):
         '''
         Delete Executions past a certain date.
         '''

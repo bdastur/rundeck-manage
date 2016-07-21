@@ -165,11 +165,12 @@ class RundeckClient(object):
 
     def delete_job_executions(self,
                               projects=None,
-                              maxjobs=75,
-                              offset=3000):
+                              maxjobs=500,
+                              offset=0):
         '''
         Delete Executions past a certain date.
         '''
+        batch_size = 50
         currprojects = self.rdclient.list_projects()
         for project in currprojects:
             if projects is not None and project['name'] not in projects:
@@ -177,31 +178,39 @@ class RundeckClient(object):
                 continue
 
             jobs = self.rdclient.list_jobs(project=project['name'])
+            batch_offset = offset
             for job in jobs:
                 print "[%s: %s] max: %d, offset: %d " % \
                     (project['name'], job['name'], maxjobs, offset)
 
-                job_executions = self.rdclient.list_job_executions(
-                    job['id'], max=maxjobs, offset=offset)
-
-                if len(job_executions) < maxjobs:
-                    print "Not Enough Executions for [%s: %s]. Skip it" % \
-                        (project['name'], job['name'])
-                    continue
-
                 execution_ids = []
-                for execution in job_executions:
-                    #print "Execution: %s [%s: %s]" % \
-                    #    (execution['id'], execution['project'],
-                    #     execution['job']['name'])
+                for x in range(0, maxjobs, batch_size):
+                    batch_offset = batch_offset + x
 
-                    # Only append executions that have succedded.
-                    # We do not want to cleanup failed jobs.
-                    if execution['status'] == "succeeded":
-                        execution_ids.append(execution['id'])
-                    else:
-                        print "%s status: %s, skip adding to delete list" % \
-                            (execution['id'], execution['status'])
+                    job_executions = self.rdclient.list_job_executions(
+                        job['id'], max=batch_size, offset=batch_offset)
+
+                    print "[%s: %s], Executions found: %d " % \
+                        (project['name'], job['name'], len(job_executions))
+                    if len(job_executions) < batch_size:
+                        print "Not Enough Executions [%s: %s]. Skip it" % \
+                            (project['name'], job['name'])
+                        break
+
+                    for execution in job_executions:
+                        #print "Execution: %s [%s: %s]" % \
+                        #    (execution['id'], execution['project'],
+                        #     execution['job']['name'])
+
+                        # Only append executions that have succedded.
+                        # We do not want to cleanup failed jobs.
+                        if execution['status'] == "succeeded":
+                            execution_ids.append(execution['id'])
+                        else:
+                            print "%s status: %s, do not add to delete list" % \
+                                (execution['id'], execution['status'])
+
+                print "Total Executions to delete: ", len(execution_ids)
 
                 self.delete_job_execution(execution_ids)
 

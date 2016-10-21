@@ -166,7 +166,7 @@ class RundeckClient(object):
     def delete_job_executions(self,
                               projects=None,
                               maxjobs=500,
-                              offset=0):
+                              offset=100):
         '''
         Delete Executions past a certain date.
         '''
@@ -198,15 +198,16 @@ class RundeckClient(object):
                         break
 
                     for execution in job_executions:
-                        #print "Execution: %s [%s: %s]" % \
-                        #    (execution['id'], execution['project'],
-                        #     execution['job']['name'])
+                        print "Execution: %s [%s: %s]" % \
+                            (execution['id'], execution['project'],
+                             execution['job']['name'])
 
                         # Only append executions that have succedded.
                         # We do not want to cleanup failed jobs.
                         if execution['status'] == "succeeded":
                             execution_ids.append(execution['id'])
                         else:
+                            execution_ids.append(execution['id'])
                             print "%s status: %s, do not add to delete list" % \
                                 (execution['id'], execution['status'])
 

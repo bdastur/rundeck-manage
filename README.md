@@ -29,9 +29,5 @@ Backup Rundeck:
 
 Example of taking a backup of job definitiosn, projects, logs and DB from rundeck to local repository
 
-./rundeck-manage.sh backup -u rundeck.abc.net -d /home/behzad_dastur/rdeckjun21prod/aws_rundeck/rundeck-backup/ -s
-
-# Taking a backup from prod server.
-source ~/rundeck_exports_100_122_2_41 
-./rundeck-manage.sh backup -u 100.122.2.41 -d /home/behzad_dastur/awsrundeck_aug1/aws_rundeck/rundeck-oct21/
+./rundeck-manage.sh backup -u rundeck.abc.net -d /home/behzad_dastur/rdeckjun21prod/aws_rundeck/rundeck-backup/ 
 
